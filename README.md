@@ -44,3 +44,27 @@ Set the Mode for each sign to one of the following values:
 -  **Twinkle**: Text twinkles continuously
 -  **Slots**: Makes it play a slot machine animation 
 
+Any text you set into `input_text.s7_line1top` will appear on the top line of Sign 1, 
+assuming that you set it to a mode that will display it.
+
+Now, you can create automations in Home Assistant to update the text as you wish.
+![example2.png](hacky_implementation%2Fexample2.png)
+
+For example here is an automation that sets the current weather on the sign every minute.
+```yaml
+alias: Set Weather on Sign
+description: ""
+trigger:
+  - platform: time_pattern
+    minutes: /1
+condition: []
+action:
+  - data:
+      value: >-
+        {{ states('weather.avhome') }}, {{state_attr('weather.avhome',
+        'temperature')}} F
+    target:
+      entity_id: input_text.s7_line3top
+    action: input_text.set_value
+mode: single
+```
