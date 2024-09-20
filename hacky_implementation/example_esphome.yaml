@@ -1,0 +1,163 @@
+esphome:
+  name: sevensigns
+  includes:
+    - seven_signs.h
+    - alpha_sign.h
+
+  on_boot:
+    - priority: -100 # after everything is set up
+      then:
+        - lambda: |-
+            auto signs = static_cast<SevenSigns*>(id(my_seven_signs));
+            signs->Start();
+esp8266:
+  board: nodemcuv2
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "your-pass"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Sign Display Fallback"
+    password: "your-pass"
+
+captive_portal:
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO2 # the ESP8266's 2nd UART
+  baud_rate: 9600
+
+custom_component:
+  - lambda: |-
+      auto seven_signs = new SevenSigns(id(uart_bus));
+      seven_signs->Boot();
+      return {seven_signs};
+    components:
+      - id: my_seven_signs
+
+text_sensor:
+  - platform: homeassistant
+    id: line1top
+    entity_id: input_text.s7_line1top
+    internal: true
+  - platform: homeassistant
+    id: line1bot
+    entity_id: input_text.s7_line1bot
+    internal: true
+  - platform: homeassistant
+    id: line2top
+    entity_id: input_text.s7_line2top
+    internal: true
+  - platform: homeassistant
+    id: line2bot
+    entity_id: input_text.s7_line2bot
+    internal: true
+  - platform: homeassistant
+    id: line3top
+    entity_id: input_text.s7_line3top
+    internal: true
+  - platform: homeassistant
+    id: line3bot
+    entity_id: input_text.s7_line3bot
+    internal: true
+  - platform: homeassistant
+    id: line4top
+    entity_id: input_text.s7_line4top
+    internal: true
+  - platform: homeassistant
+    id: line4bot
+    entity_id: input_text.s7_line4bot
+    internal: true
+  - platform: homeassistant
+    id: line5top
+    entity_id: input_text.s7_line5top
+    internal: true
+  - platform: homeassistant
+    id: line5bot
+    entity_id: input_text.s7_line5bot
+    internal: true
+  - platform: homeassistant
+    id: line6top
+    entity_id: input_text.s7_line6top
+    internal: true
+  - platform: homeassistant
+    id: line6bot
+    entity_id: input_text.s7_line6bot
+    internal: true
+  - platform: homeassistant
+    id: line7top
+    entity_id: input_text.s7_line7top
+    internal: true
+  - platform: homeassistant
+    id: line7bot
+    entity_id: input_text.s7_line7bot
+    internal: true
+
+  - platform: homeassistant
+    id: line1mode
+    entity_id: input_text.s7_line1mode
+    internal: true
+  - platform: homeassistant
+    id: line2mode
+    entity_id: input_text.s7_line2mode
+    internal: true
+  - platform: homeassistant
+    id: line3mode
+    entity_id: input_text.s7_line3mode
+    internal: true
+  - platform: homeassistant
+    id: line4mode
+    entity_id: input_text.s7_line4mode
+    internal: true
+  - platform: homeassistant
+    id: line5mode
+    entity_id: input_text.s7_line5mode
+    internal: true
+  - platform: homeassistant
+    id: line6mode
+    entity_id: input_text.s7_line6mode
+    internal: true
+  - platform: homeassistant
+    id: line7mode
+    entity_id: input_text.s7_line7mode
+    internal: true
+
+
+  - platform: homeassistant
+    id: setid
+    entity_id: input_text.s7_setid
+    internal: true
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    on_time:
+      # Every 2 seconds
+      - seconds: /2
+        then:
+          - lambda: |-
+              auto signs = static_cast<SevenSigns*>(id(my_seven_signs));
+              signs->Tick();
+              signs->Update(1, id(line1mode).state, id(line1top).state, id(line1bot).state);
+              signs->Update(2, id(line2mode).state, id(line2top).state, id(line2bot).state);
+              signs->Update(3, id(line3mode).state, id(line3top).state, id(line3bot).state);
+              signs->Update(4, id(line4mode).state, id(line4top).state, id(line4bot).state);
+              signs->Update(5, id(line5mode).state, id(line5top).state, id(line5bot).state);
+              signs->Update(6, id(line6mode).state, id(line6top).state, id(line6bot).state);
+              signs->Update(7, id(line7mode).state, id(line7top).state, id(line7bot).state);
+              
+              // if we are doing ID setting
+              //signs->SetID(id(setid).state);
+
+
